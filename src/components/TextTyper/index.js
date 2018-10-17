@@ -33,7 +33,7 @@ class TextTyper extends Component {
 			indexStatus: status.NOT_TYPED
 		}))
 
-	markTimeOf = endOrStart =>
+  markTimeOf = endOrStart => !(this.state[endOrStart]) &&
 		this.setState(s => ({
 			[endOrStart]: Date.now()
 		}))
