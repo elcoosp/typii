@@ -2,9 +2,13 @@ import React, { Component } from 'react'
 import P from 'prop-types'
 
 import { status, keys } from './constants'
+import wpm from './wpm'
 import Character from './Character'
+
 class TextTyper extends Component {
 	state = {
+		start: null,
+		end: null,
 		index: 0,
 		indexStatus: status.NOT_TYPED
 	}
@@ -29,6 +33,18 @@ class TextTyper extends Component {
 			indexStatus: status.NOT_TYPED
 		}))
 
+	markTimeOf = endOrStart =>
+		this.setState(s => ({
+			[endOrStart]: Date.now()
+		}))
+
+	handleStartOrEnd = () =>
+		this.state.index === 0
+			? this.markTimeOf('start')
+			: this.state.index === this.props.text.length - 1
+				? this.markTimeOf('end')
+				: undefined
+
 	handleError = () =>
 		this.setState(s => ({
 			indexStatus: status.ERROR
@@ -46,11 +62,12 @@ class TextTyper extends Component {
 			: e.key === keys.Backspace
 				? this.handleBackSpace()
 				: e.key !== this.props.text[this.state.index]
-					? this.handleError()
-					: this.handleCorrect()
+					? (this.handleStartOrEnd(), this.handleError())
+					: (this.handleStartOrEnd(), this.handleCorrect())
 
 	render() {
 		const { text } = this.props
+		const { start, end } = this.state
 		return (
 			<p tabIndex="0" onKeyDown={this.handleKeyDown}>
 				{text.map((character, i) => (
@@ -58,6 +75,11 @@ class TextTyper extends Component {
 						{character}
 					</Character>
 				))}
+				<ul>
+					<li>Start : {start}</li>
+					<li>End : {end}</li>
+					<li>WPM : {wpm(text.length, start, end)}</li>
+				</ul>
 			</p>
 		)
 	}
